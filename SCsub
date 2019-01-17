@@ -1,0 +1,81 @@
+#!/usr/bin/env python
+
+Import('env')
+import os
+
+my_env = os.environ
+env = env.Clone()
+
+for k in my_env:
+
+    env[k] = my_env[k]
+
+third_party_sources = ["/tools/make/downloads/farmhash/src/farmhash.cc",
+                       "/tools/make/downloads/fft2d/*.c",
+                       "/*.cc",
+                       "/*.c",
+                       "/kernels/*.cc",
+                       "/kernels/*.c",
+                       "/kernels/internal/*.cc",
+                       "/kernels/internal/optimized/*.cc",
+                       "/kernels/internal/optimized/*.c",
+                       "/kernels/internal/reference/*.cc",
+                       "/kernels/internal/reference/*.c"]
+
+thirdparty_sources = [my_env['TF_LITE_PATH'] + file for file in third_party_sources ]
+
+include_dirs_pre = ["/kernels",
+                    "/kernels/internal",
+                    "/kernels/internal/optimized",
+                    "/kernels/internal/reference",
+                    "/tools/make/downloads/flatbuffers/include",
+                    "/tools/make/downloads/flatbuffers/src",
+                    "/tools/make/downloads",
+                    "/tools/make/downloads/absl",
+                    "/tools/make/downloads/googletest/googletest/include",
+                    "/tools/make/downloads/googletest/googlemock/include",
+                    "/tools/make/downloads/fft2d",
+                    "/tools/make/downloads/eigen",
+                    "/tools/make/downloads/gemmlowp",
+                    "/tools/make/downloads/neon_2_sse",
+                    "/tools/make/downloads/farmhash/src"
+                    ]
+
+include_dirs = [ my_env['TF_PATH'] ]
+
+for file in include_dirs_pre:
+    include_dirs.append(my_env['TF_PATH'] + file)
+
+include_options = []
+
+if 'IS_WINDOWS' in env:
+    # Simply go around SCons scanners and add compiler options directly
+    include_options = ['-I' +  p for p in include_dirs]
+else:
+    # Tag these includes as system, to avoid scanning them for dependencies,
+    # and make compiler ignore any warnings
+    for p in include_dirs:
+        include_options.append('-isystem')
+        include_options.append(p)
+print(include_dirs)
+env.Append(CXXFLAGS = include_options)
+env.Append(CPPPATH = include_dirs)
+
+# c++11
+env.Append(CXXFLAGS="-std=c++0x")
+
+env.add_source_files(env.modules_sources,"*.cpp")
+# Don't know a better way of doing this, but it works
+env.Append(CPPFLAGS=["-lopencv_core"])
+env.Append(CPPFLAGS=["-lopencv_imgproc"])
+env.Append(CPPFLAGS=["-lopencv_highgui"])
+env.Append(CPPFLAGS=["-lopencv_objdetect"])
+# env.Append(CPPFLAGS=["-lopencv_gpu"])
+env.Append(CPPFLAGS=["-pthread"])
+
+env.Append(LINKFLAGS=["-lopencv_core"])
+env.Append(LINKFLAGS=["-lopencv_imgproc"])
+env.Append(LINKFLAGS=["-lopencv_highgui"])
+env.Append(LINKFLAGS=["-lopencv_objdetect"])
+# env.Append(LINKFLAGS=["-lopencv_gpu"])
+env.Append(LINKFLAGS=["-pthread"])
