@@ -115,7 +115,7 @@ class EmotionTracker : public Reference {
   GDCLASS(EmotionTracker, Reference);
   
 public:
-  EmotionTracker(const string & model_path);
+  EmotionTracker();
 
   bool _config(const string & model_path);
 

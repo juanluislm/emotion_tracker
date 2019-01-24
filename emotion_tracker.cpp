@@ -1,15 +1,7 @@
 #include "emotion_tracker.h"
 
-EmotionTracker::EmotionTracker(const string & model_path = "") {
+EmotionTracker::EmotionTracker() {
 
-  if(model_path.empty()){
-    return;
-  }
-
-  bool pass = _config(model_path);
-#ifdef DEBUGCV
-  timer = Timer("EmotionTracker");
-#endif
 }
 
 bool EmotionTracker::_config(const string & model_path) {
@@ -96,6 +88,9 @@ bool EmotionTracker::_config(const string & model_path) {
   for (size_t i = 0; i < output_size; i++) {
     emotionResult.push_back(0);
   }
+#ifdef DEBUGCV
+    timer = Timer("EmotionTracker");
+#endif
   return true;
 }
 
@@ -163,18 +158,18 @@ string EmotionTracker::get_likely_emotion_label(){
   return likely_emotion_label;
 }
 
-static void EmotionTracker::_bind_methods(){
-  ClassDB::bind_method("get_likely_emotion", &EmotionTracker::get_likely_emotion);
+void EmotionTracker::_bind_methods(){
+  ClassDB::bind_method(D_METHOD("get_likely_emotion"), &EmotionTracker::get_likely_emotion);
 
-  ClassDB::bind_method("get_likely_emotion_label", &EmotionTracker::get_likely_emotion_label);
+  ClassDB::bind_method(D_METHOD("get_likely_emotion_label"), &EmotionTracker::get_likely_emotion_label);
 
-  ClassDB::bind_method("get_output_size", &EmotionTracker::get_output_size);
+  ClassDB::bind_method(D_METHOD("get_output_size"), &EmotionTracker::get_output_size);
 
-  ClassDB::bind_method("get_results", &EmotionTracker::get_results);
+  ClassDB::bind_method(D_METHOD("get_results"), &EmotionTracker::get_results);
 
-  ClassDB::bind_method("get_labels", &EmotionTracker::get_labels);
+  ClassDB::bind_method(D_METHOD("get_labels"), &EmotionTracker::get_labels);
 
-  ClassDB::bind_method("track", "in", "image_width", 
+  ClassDB::bind_method(D_METHOD("track"), "in", "image_width", 
                             "image_height", "image_channels", 
                             &EmotionTracker::track);
   // in, int image_width, int image_height, int image_channels

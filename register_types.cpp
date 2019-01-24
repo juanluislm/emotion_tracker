@@ -3,7 +3,7 @@
 
 void register_emotion_tracker_types()
 {
-		ClassDB::register_type<EmotionTracker>();
+		ClassDB::register_class<EmotionTracker>();
 }
 
 void unregister_emotion_tracker_types() {
