@@ -4,8 +4,17 @@ EmotionTracker::EmotionTracker() {
 
 }
 
-bool EmotionTracker::_config(const string & model_path) {
-  settings.model_name = model_path;
+bool EmotionTracker::g_config(String model_path){
+    
+    std::wstring ws = model_path.c_str();
+    std::string s( ws.begin(), ws.end() );
+    return _config(s);
+}
+
+bool EmotionTracker::_config(string model_path) {
+    
+//    char* c = s.c_str();
+  settings.model_name =  model_path;
   model = tflite::FlatBufferModel::BuildFromFile(settings.model_name.c_str());
   if (!model) {
     LOG(FATAL) << "\nFailed to mmap model " << settings.model_name << "\n";
@@ -158,19 +167,53 @@ string EmotionTracker::get_likely_emotion_label(){
   return likely_emotion_label;
 }
 
+String EmotionTracker::g_get_likely_emotion_label(){
+    
+//    String s(likely_emotion_label.begin(), likely_emotion_label.end());
+    std::wstring widestr = std::wstring(likely_emotion_label.begin(),
+                                        likely_emotion_label.end());
+    String s(widestr.c_str());
+    
+    return s;
+}
+
+Array EmotionTracker::g_get_results(){
+    Array out_array;
+    for(int i=0; i< emotionResult.size(); i++){
+        out_array.append(emotionResult[i]);
+    }
+    return out_array;
+}
+
+Array EmotionTracker::g_get_labels(){
+    Array out_array;
+    for(int i=0; i< labels.size(); i++){
+        std::wstring widestr = std::wstring(labels[i].begin(), labels[i].end());
+        String s(widestr.c_str());
+
+//        String s(labels[i].begin(), labels[i].end());
+        out_array.append(s);
+    }
+    return out_array;
+}
+
 void EmotionTracker::_bind_methods(){
+  
+    std::wstring mp(L"model_path");
+  
+  ClassDB::bind_method(D_METHOD("g_config", "model_path") ,&EmotionTracker::g_config);
+  
   ClassDB::bind_method(D_METHOD("get_likely_emotion"), &EmotionTracker::get_likely_emotion);
 
-  ClassDB::bind_method(D_METHOD("get_likely_emotion_label"), &EmotionTracker::get_likely_emotion_label);
+  ClassDB::bind_method(D_METHOD("g_get_likely_emotion_label"), &EmotionTracker::g_get_likely_emotion_label);
 
   ClassDB::bind_method(D_METHOD("get_output_size"), &EmotionTracker::get_output_size);
 
-  ClassDB::bind_method(D_METHOD("get_results"), &EmotionTracker::get_results);
+  ClassDB::bind_method(D_METHOD("g_get_results"), &EmotionTracker::g_get_results);
 
-  ClassDB::bind_method(D_METHOD("get_labels"), &EmotionTracker::get_labels);
+  ClassDB::bind_method(D_METHOD("g_get_labels"), &EmotionTracker::g_get_labels);
 
-  ClassDB::bind_method(D_METHOD("track"), "in", "image_width", 
-                            "image_height", "image_channels", 
+    ClassDB::bind_method(D_METHOD("track", "in", "image_width", "image_height", "image_channels"),
                             &EmotionTracker::track);
   // in, int image_width, int image_height, int image_channels
 }

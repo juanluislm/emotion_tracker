@@ -1,6 +1,6 @@
 #pragma once
 #include "timer.h"
-#include <string>
+// #include <string>
 #include <vector>
 
 #include "tensorflow/contrib/lite/model.h"
@@ -15,6 +15,8 @@
 #include "core/os/thread.h"
 #include "core/reference.h"
 #include "core/resource.h"
+#include "core/array.h"
+#include "core/int_types.h"
 
 #define LOG(x) std::cerr
 
@@ -117,7 +119,9 @@ class EmotionTracker : public Reference {
 public:
   EmotionTracker();
 
-  bool _config(const string & model_path);
+  bool _config(string model_path);
+  
+    
 
   void track(uint8_t * in, int image_width, int image_height, int image_channels);
   
@@ -135,6 +139,15 @@ public:
   int get_likely_emotion();
 
   string get_likely_emotion_label();
+  
+  bool g_config(String model_path);
+  
+    String g_get_likely_emotion_label();
+    
+    Array g_get_results();
+    
+    Array g_get_labels();
+    
 
 protected:
 
